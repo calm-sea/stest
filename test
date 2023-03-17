@@ -1,0 +1,89 @@
+#!/bin/bash
+
+# Let user input the password for the one session
+read -s -p "Please input the password for sudo command: " PASSWD
+echo
+
+#Validate the correct password before the following steps:
+echo $PASSWD | sudo -k -S true
+if [ $? -ne 0 ]; then
+    echo "Wrong password, exit!"
+    exit 1
+fi
+echo
+echo
+
+#Default working directory
+WORKING_DIR=buildmedia
+read -p "Please input the working directory(default is $WORKING_DIR): " IN_NAME
+if [ ! -z "$IN_NAME" -a "$IN_NAME" != " " ]; then
+    WORKING_DIR=$IN_NAME
+fi
+WORKING_PATH=$HOME/$WORKING_DIR
+if [ ! f $WORKING_PATH ];then
+	mkdir -p $WORKING_PATH
+ fi
+echo "************************************************************************"
+echo "    Current working directory is $WORKING_PATH"
+echo "************************************************************************"
+
+# Let user select if checkout the tested version
+USE_TESTED=0
+echo "The build process can checkout the tested commits that listed in the article or use the latest version in the repo."
+read -p "Please input Yes to checkout the tested commit or return for the latest version: " USR_SEL
+if [[ ( ${USR_SEL:0:1} == 'Y' ) || ( ${USR_SEL:0:1} == 'y' ) ]]
+    then
+        USE_TESTED=1
+fi
+echo "************************************************************************"
+if [ $USE_TESTED -eq 1 ]
+    then
+        echo "The tested commit ID will be checked out."
+    else 
+        echo "The latest commit will be checked out"
+fi
+echo "************************************************************************"
+
+echo
+echo "************************************************************************"
+echo "    Start building Media SDK Open Source Software Stack"
+echo "    Install required tools and create build environment."
+echo "************************************************************************"
+echo "......"
+
+#Install the necessary tools
+
+# Create the working directory
+if [ ! -d "$WORKING_PATH" ]; then
+	mkdir $WORKING_PATH
+else
+	echo Directory $WORKING_PATH exists
+fi
+
+#Build cmake tool
+#cd $WORKING_PATH
+#wget https://cmake.org/files/v3.10/cmake-3.10.1.tar.gz
+#tar -xvzf cmake-3.10.1.tar.gz
+#cd $WORKING_PATH/cmake-3.10.1
+#./bootstrap --prefix=/usr
+#make
+#echo $PASSWD | sudo -k -S make install
+
+# Create the build directory for UMD
+if [ ! -d "$WORKING_PATH/build" ]; then
+	mkdir -p $WORKING_PATH/build
+else
+	echo Directory $WORKING_PATH/build exists
+fi
+
+echo "************************************************************************"
+echo "    Pull all the source code."
+echo "************************************************************************"
+echo "......"
+# Pull all the source code
+cd $WORKING_PATH
+git clone https://github.com/intel/libva.git
+git clone https://github.com/intel/libva-utils.git
+git clone https://github.com/intel/media-driver.git
+#git clone https://github.com/intel/gmmlib.git
+git clone https://github.com/Intel-Media-SDK/MediaSDK.git
